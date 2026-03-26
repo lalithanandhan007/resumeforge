@@ -9,6 +9,7 @@ export default function ClassicTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         fontFamily: "'Times New Roman', Times, serif",
         padding: "56px 64px",

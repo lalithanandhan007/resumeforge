@@ -9,6 +9,7 @@ export default function ProfessionalTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         fontFamily: "'Arial', Helvetica, sans-serif",
         boxSizing: "border-box",

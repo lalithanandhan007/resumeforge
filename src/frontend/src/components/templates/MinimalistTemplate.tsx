@@ -9,6 +9,7 @@ export default function MinimalistTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         padding: "64px 72px",

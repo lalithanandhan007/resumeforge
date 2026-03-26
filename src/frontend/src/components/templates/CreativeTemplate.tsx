@@ -9,6 +9,7 @@ export default function CreativeTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
         boxSizing: "border-box",

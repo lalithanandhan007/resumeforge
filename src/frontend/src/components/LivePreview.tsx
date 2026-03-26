@@ -1,6 +1,18 @@
-import { Download, Eye, Loader2, Share2, ZoomIn, ZoomOut } from "lucide-react";
+import {
+  AlertCircle,
+  Download,
+  Eye,
+  Loader2,
+  RefreshCw,
+  Save,
+  Share2,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import { AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { useActor } from "../hooks/useActor";
 import { usePdfDownload } from "../hooks/usePdfDownload";
 import type { ResumeData, TemplateId } from "../types/resume";
 import PdfGeneratingOverlay from "./PdfGeneratingOverlay";
@@ -47,7 +59,9 @@ export default function LivePreview({
   const containerRef = useRef<HTMLDivElement>(null);
   const pdfContainerRef = useRef<HTMLDivElement>(null);
   const [fitScale, setFitScale] = useState(0.6);
-  const { isGenerating, downloadPdf } = usePdfDownload();
+  const [isSaving, setIsSaving] = useState(false);
+  const { actor } = useActor();
+  const { isGenerating, downloadFailed, downloadPdf } = usePdfDownload();
 
   useEffect(() => {
     function calcFit() {
@@ -66,9 +80,46 @@ export default function LivePreview({
   const Comp = templateComponents[selectedTemplate];
 
   async function handleDownload() {
-    if (!pdfContainerRef.current) return;
     const filename = `resume-${resumeData.name.toLowerCase().replace(/\s+/g, "-")}.pdf`;
-    await downloadPdf(pdfContainerRef.current, filename);
+    await downloadPdf(filename);
+  }
+
+  async function handleSave() {
+    if (!actor) {
+      toast.error("Not connected. Please try again.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      // eslint-disable-next-line
+      const result = await (actor as any).createResume(
+        resumeData.name,
+        resumeData.title,
+        resumeData.email,
+        resumeData.phone,
+        resumeData.location,
+        resumeData.linkedin,
+        resumeData.summary,
+        JSON.stringify(resumeData.experience),
+        JSON.stringify(resumeData.education),
+        JSON.stringify(resumeData.skills),
+        selectedTemplate,
+      );
+      if (result && "ok" in result) {
+        toast.success("Resume saved successfully!");
+        // Fire-and-forget: increment resume count
+        try {
+          (actor as any).incrementResumeCount();
+        } catch (_) {}
+      } else {
+        toast.error(result?.err ?? "Failed to save resume");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save resume");
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -126,26 +177,62 @@ export default function LivePreview({
           <div
             style={{
               width: `${RESUME_WIDTH * scale}px`,
-              minHeight: `${RESUME_HEIGHT * scale}px`,
-              height: "auto",
+              height: `${RESUME_HEIGHT * scale}px`,
               margin: "0 auto",
               position: "relative",
-              overflow: "hidden",
+              flexShrink: 0,
               boxShadow:
                 "0 8px 40px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)",
               borderRadius: "2px",
+              overflow: "hidden",
             }}
           >
             <div
               style={{
                 width: `${RESUME_WIDTH}px`,
+                minHeight: `${RESUME_HEIGHT}px`,
                 transform: `scale(${scale})`,
                 transformOrigin: "top left",
                 pointerEvents: "none",
+                backgroundColor: "#ffffff",
               }}
             >
               <Comp data={resumeData} />
             </div>
+          </div>
+
+          <div
+            style={{
+              width: `${RESUME_WIDTH * scale}px`,
+              margin: "8px auto 0",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "oklch(0.30 0.04 255)",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "10px",
+                color: "oklch(0.45 0.03 255)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Page break
+            </span>
+            <div
+              style={{
+                flex: 1,
+                height: "1px",
+                backgroundColor: "oklch(0.30 0.04 255)",
+              }}
+            />
           </div>
         </div>
 
@@ -189,7 +276,55 @@ export default function LivePreview({
             </button>
           </div>
 
+          {downloadFailed && (
+            <div
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm"
+              style={{
+                backgroundColor: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.25)",
+                color: "#F87171",
+              }}
+            >
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span className="flex-1">PDF generation failed.</span>
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all"
+                style={{
+                  backgroundColor: "rgba(239,68,68,0.15)",
+                  color: "#FCA5A5",
+                  border: "1px solid rgba(239,68,68,0.3)",
+                }}
+              >
+                <RefreshCw className="w-3 h-3" />
+                Try Again
+              </button>
+            </div>
+          )}
+
+          {/* Save + Download row */}
           <div className="flex gap-2">
+            <button
+              type="button"
+              data-ocid="preview.save.button"
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: "oklch(0.20 0.05 260)",
+                color: "oklch(0.80 0.12 260)",
+                border: "1px solid oklch(0.30 0.08 260)",
+              }}
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isSaving ? "Saving..." : "Save"}
+            </button>
+
             <button
               type="button"
               data-ocid="preview.download.button"
@@ -207,6 +342,7 @@ export default function LivePreview({
               )}
               {isGenerating ? "Generating..." : "Download PDF"}
             </button>
+
             <button
               type="button"
               data-ocid="preview.export.button"
@@ -218,20 +354,17 @@ export default function LivePreview({
               }}
             >
               <Share2 className="w-4 h-4" />
-              Export
             </button>
           </div>
         </div>
       </div>
 
-      {/* Hidden PDF render target */}
       <PdfRenderContainer
         ref={pdfContainerRef}
         templateId={selectedTemplate}
         data={resumeData}
       />
 
-      {/* Full-screen overlay while generating */}
       <AnimatePresence>
         {isGenerating && <PdfGeneratingOverlay />}
       </AnimatePresence>

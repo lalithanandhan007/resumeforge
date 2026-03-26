@@ -9,6 +9,7 @@ export default function ElegantTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         display: "flex",
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
@@ -20,7 +21,7 @@ export default function ElegantTemplate({ data }: Props) {
       <div
         style={{
           width: "200px",
-          minHeight: "100%",
+          minHeight: "1123px",
           backgroundColor: "#0D7A6B",
           padding: "48px 24px",
           boxSizing: "border-box",

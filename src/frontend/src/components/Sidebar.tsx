@@ -8,16 +8,41 @@ import {
   Sparkles,
   User,
 } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", active: false },
-  { icon: FileText, label: "My Resumes", active: false },
-  { icon: Layout, label: "Templates", active: true },
-  { icon: BarChart2, label: "Analytics", active: false },
-  { icon: User, label: "Profile", active: false },
-];
+type View = "builder" | "dashboard";
 
-export default function Sidebar() {
+interface Props {
+  view: View;
+  setView: (v: View) => void;
+}
+
+export default function Sidebar({ view, setView }: Props) {
+  const { logout, user } = useAuth();
+
+  const navItems = [
+    {
+      icon: LayoutDashboard,
+      label: "Dashboard",
+      action: () => setView("dashboard"),
+      active: view === "dashboard",
+    },
+    {
+      icon: FileText,
+      label: "My Resumes",
+      action: () => setView("dashboard"),
+      active: view === "dashboard",
+    },
+    {
+      icon: Layout,
+      label: "Templates",
+      action: () => setView("builder"),
+      active: view === "builder",
+    },
+    { icon: BarChart2, label: "Analytics", action: () => {}, active: false },
+    { icon: User, label: "Profile", action: () => {}, active: false },
+  ];
+
   return (
     <aside
       className="fixed left-0 top-0 h-full w-[240px] flex flex-col z-20"
@@ -49,6 +74,7 @@ export default function Sidebar() {
             type="button"
             key={item.label}
             data-ocid={`sidebar.${item.label.toLowerCase().replace(" ", "_")}.link`}
+            onClick={item.action}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200"
             style={{
               background: item.active
@@ -71,6 +97,27 @@ export default function Sidebar() {
         className="px-3 py-4 border-t space-y-1"
         style={{ borderColor: "oklch(0.22 0.035 255)" }}
       >
+        {user && (
+          <div
+            className="flex items-center gap-2 px-3 py-2 mb-1 rounded-lg"
+            style={{ backgroundColor: "oklch(0.17 0.03 255)" }}
+          >
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+              style={{
+                background: "linear-gradient(135deg, #2D7FF9, #7C3AED)",
+              }}
+            >
+              {user.name.slice(0, 2).toUpperCase()}
+            </div>
+            <span
+              className="text-xs truncate"
+              style={{ color: "oklch(0.65 0.022 255)" }}
+            >
+              {user.name.slice(0, 12)}...
+            </span>
+          </div>
+        )}
         <button
           type="button"
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
@@ -82,6 +129,7 @@ export default function Sidebar() {
         <button
           type="button"
           data-ocid="sidebar.logout.button"
+          onClick={logout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all"
           style={{ color: "oklch(0.65 0.022 255)" }}
         >

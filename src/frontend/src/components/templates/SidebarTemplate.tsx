@@ -9,6 +9,7 @@ export default function SidebarTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#ffffff",
         display: "flex",
         fontFamily: "'Helvetica Neue', Arial, sans-serif",
@@ -20,7 +21,7 @@ export default function SidebarTemplate({ data }: Props) {
       <div
         style={{
           width: "240px",
-          minHeight: "100%",
+          minHeight: "1123px",
           backgroundColor: "#0F1A2B",
           padding: "48px 28px",
           boxSizing: "border-box",

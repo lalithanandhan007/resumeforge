@@ -34,16 +34,26 @@ const PdfRenderContainer = forwardRef<HTMLDivElement, Props>(
     return (
       <div
         ref={ref}
+        aria-hidden="true"
         style={{
-          position: "fixed",
+          position: "absolute",
           left: "-9999px",
-          top: 0,
+          top: "0px",
           width: "794px",
-          backgroundColor: "#ffffff",
           zIndex: -1,
         }}
       >
-        <Comp data={data} />
+        <div
+          id="resume-preview"
+          style={{
+            width: "794px",
+            minHeight: "1123px",
+            backgroundColor: "#ffffff",
+            color: "#000000",
+          }}
+        >
+          <Comp data={data} />
+        </div>
       </div>
     );
   },

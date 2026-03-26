@@ -9,6 +9,7 @@ export default function ExecutiveTemplate({ data }: Props) {
     <div
       style={{
         width: "794px",
+        minHeight: "1123px",
         backgroundColor: "#FAF8F2",
         fontFamily: "'Georgia', 'Times New Roman', serif",
         boxSizing: "border-box",

@@ -1,6 +1,16 @@
 import { BookMarked, ChevronRight, Plus } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
 
-export default function Header() {
+interface Props {
+  onCreateNew: () => void;
+  onSavedDrafts: () => void;
+}
+
+export default function Header({ onCreateNew, onSavedDrafts }: Props) {
+  const { user } = useAuth();
+
+  const initials = user?.name ? user.name.slice(0, 2).toUpperCase() : "RF";
+
   return (
     <header
       className="fixed top-0 left-[240px] right-0 z-10 flex items-center justify-between px-6"
@@ -22,7 +32,7 @@ export default function Header() {
           className="font-semibold"
           style={{ color: "oklch(0.92 0.015 255)" }}
         >
-          Template Gallery
+          ResumeForge
         </span>
       </div>
 
@@ -31,6 +41,7 @@ export default function Header() {
         <button
           type="button"
           data-ocid="header.drafts.button"
+          onClick={onSavedDrafts}
           className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all"
           style={{
             color: "oklch(0.65 0.022 255)",
@@ -44,6 +55,7 @@ export default function Header() {
         <button
           type="button"
           data-ocid="header.create_new.button"
+          onClick={onCreateNew}
           className="flex items-center gap-2 px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition-all"
           style={{ background: "linear-gradient(135deg, #2D7FF9, #7C3AED)" }}
         >
@@ -56,7 +68,7 @@ export default function Header() {
           className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white cursor-pointer"
           style={{ background: "linear-gradient(135deg, #2D7FF9, #7C3AED)" }}
         >
-          AJ
+          {initials}
         </div>
       </div>
     </header>
